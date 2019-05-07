@@ -1,0 +1,389 @@
+{%- include 'bold-product' with product, hide_action: 'break', output: 'none' -%}
+<div class="container product-detail-container">
+<div class="row" data-section-id="{{ section.id }}" data-section-type="product" data-enable-history-state="true" itemscope itemtype="http://schema.org/Product">
+
+  {%- assign current_variant = bold_selected_or_first_available_variant -%}
+{%- include 'bold-variant' with current_variant, output: 'none' -%}
+  {%- assign featured_image = current_variant.featured_image | default: product.featured_image -%}
+  
+  <div class="col-12 mb-3 mb-md-0 col-md-6 col-lg-5">
+  
+  	{% include 'breadcrumbs' %}
+  
+	  <meta itemprop="name" content="{{ product.title }}{% unless product.has_only_default_variant %} - {{ current_variant.title }}{% endunless %}">
+	  <meta itemprop="url" content="{{ shop.url }}{{ current_variant.url }}">
+	  <meta itemprop="image" content="{{ featured_image | img_url: '600x600' }}">
+	  <meta itemprop="description" content="{{ product.description | strip_html | escape }}">
+	  
+	  <h1 class="product-title d-md-none">{{ product.title }}</h1>	 
+	  
+	  {% comment %}
+	  
+	  BG: I'm not going mad....but i've lopped through the images and thumbnails twice, because slick was struggling with the lack of thumbnails, so it was causing the script to bug out. however, if there's more than 3 thumbnails, it works as intended, so i've looped through it twice to ensure there is. 
+	  
+	  {% endcomment %}
+	  
+ 	  {% if product.images.size > 0 %}
+  	  <div class="product-detail-images mb-4">
+  	  		{% for image in product.images %}
+  	  		<div class="product-image">
+				<img src="{{ image.src | img_url: '570x570' }}" class="img-fluid" alt="{{ image.alt | escape }}">
+		  	</div>
+		  	{% endfor %}
+		  	{% for image in product.images %}
+  	  		<div class="product-image">
+				<img src="{{ image.src | img_url: '570x570' }}" class="img-fluid" alt="{{ image.alt | escape }}">
+		  	</div>
+		  	{% endfor %}
+	  </div>
+	  {% endif %}
+
+
+	  {% if product.images.size > 0 %}
+	  <div class="product-detail-thumbnails mb-4 row">
+		  {% for image in product.images %}
+			<div class="col-4">
+				<div class="product-image-thumbnail">
+					<img src="{{ image.src | img_url: '160x160' }}" class="img-fluid" alt="{{ image.alt | escape }}">
+				</div>
+			</div>
+		  {% endfor %}
+		  {% for image in product.images %}
+			<div class="col-4">
+				<div class="product-image-thumbnail">
+					<img src="{{ image.src | img_url: '160x160' }}" class="img-fluid" alt="{{ image.alt | escape }}">
+				</div>
+			</div>
+		  {% endfor %}
+	  </div>
+	  {% endif %}
+	  
+  </div>
+  <div class="col-12 col-md-6 offset-lg-1 col-lg-6">
+  
+	<div class="product-collection-navigation">
+	  {% if collection %}
+		{% if collection.previous_product or collection.next_product %}
+		  <p class="previous">
+			{% if collection.previous_product %}
+			  {% capture prev_url %}{{ collection.previous_product}}#content{% endcapture %}
+			  <a href="{{prev_url}}"><svg class="icon-chevron-left" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="24" height="24" viewBox="0 0 24 24"><path d="M15.41,16.58L10.83,12L15.41,7.41L14,6L8,12L14,18L15.41,16.58Z" /></svg>{{ 'products.general.previous_product_html' | t }}</a>
+			{% else %}
+			  <svg class="icon-chevron-left" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="24" height="24" viewBox="0 0 24 24"><path d="M15.41,16.58L10.83,12L15.41,7.41L14,6L8,12L14,18L15.41,16.58Z" /></svg>{{ 'products.general.previous_product_html' | t }}
+			{% endif %}
+		  </p>
+		  <p class="next">
+			{% if collection.next_product %}
+			  {% capture next_url %}{{ collection.next_product}}#content{% endcapture %}
+			  <a href="{{ next_url }}">{{ 'products.general.next_product_html' | t }} <svg class="icon-chevron-right" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="24" height="24" viewBox="0 0 24 24"><path d="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z" /></svg></a>
+			{% else %}
+			  {{ 'products.general.next_product_html' | t }}<svg class="icon-chevron-right" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="24" height="24" viewBox="0 0 24 24"><path d="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z" /></svg>
+			{% endif %}
+		  </p>
+		{% endif %}
+	  {% endif %}
+	</div>
+	  <h1 class="product-title d-none d-md-block">{{ product.title }}</h1>
+	  
+	  <div class="row align-items-sm-center">
+			<div class="col-12">
+				<div class="product-detail-price-wrapper" data-price-wrapper>
+				<span class="product-detail-price" data-product-price>
+					<span class="money">{{ bold_variant_price | money }}</span>
+				</span>
+
+				{% if bold_compare_at_price_max > bold_price %}
+					<span class="visually-hidden" data-compare-text>{{ 'products.product.regular_price' | t }}</span>
+					<span class="product-price-original" data-compare-price>
+					{% if current_variant.compare_at_price > bold_variant_price %}
+						WAS
+						<span class="money">{{ current_variant.compare_at_price | money }}</span>
+					{% endif %}
+					</span>
+				{% endif %}
+				</div>
+			</div><!-- col-6 -->
+		</div><!-- row -->
+
+	  <div itemprop="offers" itemscope itemtype="http://schema.org/Offer">
+		<meta itemprop="priceCurrency" content="{{ shop.currency }}">
+		<meta itemprop="price" content="{{ bold_variant_price | divided_by: 100.00 }}">
+		<link itemprop="availability" href="http://schema.org/{% if current_variant.available %}InStock{% else %}OutOfStock{% endif %}">
+
+		<form action="/cart/add" method="post" enctype="multipart/form-data">
+		
+		{% if product.available and bold_variants_size > 1 %}
+		  {% for option in product.options %}
+			{% include 'swatch' with option %}
+		  {% endfor %}
+		{% endif %}
+
+	  
+		{% unless product.has_only_default_variant %}
+        {% for option in product.options_with_values %}
+          <div class="selector-wrapper variant-{{ option.name }}">
+            <div class="swatch-header">Select a {{ option.name }}</div>
+            <label for="SingleOptionSelector-{{ forloop.index0 }}" class="sr-only">
+              {{ option.name }}
+            </label>
+
+            <select
+              id="SingleOptionSelector-{{ forloop.index0 }}"
+              class="single-option-selector"
+              data-single-option-selector
+              data-index="option{{ option.position }}">
+{%- assign optName = 'options' | append: forloop.index -%}
+{%- assign option_values = [optName] | default: option.values -%}
+{%- for value in option_values -%}
+                <option
+                  value="{{ value | escape }}"
+                  {% if option.selected_value == value %}selected="selected"{% endif %}>
+                    {{ value }}
+                </option>
+              {% endfor %}
+            </select>
+          </div>
+        {% endfor %}
+      {% endunless %}
+
+      <select name="id" class="no-js" data-product-select>
+        {% for variant in product.variants %}
+{%- include 'bold-variant' with variant, hide_action: 'skip' -%}
+          <option
+            {% if variant == current_variant %}selected="selected"{% endif %}
+            {% unless variant.available %}disabled="disabled"{% endunless %}
+            value="{{ variant.id }}">
+              {{ variant.title }}
+          </option>
+        {% endfor %}
+      </select>
+{%- unless qb_loaded == 'true' -%}
+<div class='shappify-qty-msg'>{{bold_selected_or_first_available_variant.metafields.shappify_csp.pricing_html}}</div>
+{%- assign qb_loaded = 'true' -%}
+{%- endunless -%}
+
+	
+		  <div class="product-add-to-basket">
+			  <button type="submit" name="add" data-add-to-cart class="btn-add-to-cart btn btn-primary {% if current_variant.available %}variant-available{% else %}variant-not-available{% endif %}" {% unless current_variant.available %}disabled="disabled"{% endunless %}>
+						<span data-add-to-cart-text>
+						{% if current_variant.available %}
+							{{ 'products.product.add_to_cart' | t }}
+						{% else %}
+							{{ 'products.product.email_when_in_stock' | t }}
+						{% endif %}
+						</span>
+				</button>
+				<div class="product-quantity-container">
+					<label for="Quantity" class="sr-only">{{ 'products.product.quantity' | t }}</label>
+					<input type="number" id="Quantity" class="product-quantity" name="quantity" value="1" min="1">
+					<div class="quantity-controls">
+					<span class="quantity-increase">
+						{% include 'icon-plus' %}
+					</span>
+					<span class="quantity-decrease">
+						{% include 'icon-minus' %}
+					</span>
+					</div>
+				</div>
+		  </div>
+
+			<div class="clearfix"></div>
+
+		{% if section.settings.countdown_visible %}
+			{% include 'product-countdown', countdown_top: section.settings.countdown_top, countdown_bottom: section.settings.countdown_bottom, countdown_hours: section.settings.countdown_hours, countdown_minutes: section.settings.countdown_minutes %}
+		{% endif %}
+	  
+		</form>
+
+	  </div>
+
+  	  <div class="accordion-container">
+  	  	<div class="accordion-item active">
+  	  		<div class="accordion-title">
+  	  			<h3>Description</h3>
+  	  			<div class="plus-minus-icon"></div>
+  	  		</div>
+  	  		<div class="accordion-content">
+  	  			<div class="rte">
+  	  				{{ product.description }}
+  	  			</div>
+  	  		</div>
+  	  	</div>
+  	  	{% for featured_detail in section.blocks %}
+		<div class="accordion-item">
+			<div class="accordion-title">
+				<h3>{{featured_detail.settings.featured_detail_title}}</h3>
+				<div class="plus-minus-icon"></div>
+			</div>
+			<div class="accordion-content">
+				<div class="rte">
+					{{featured_detail.settings.featured_detail_content}}
+				</div>
+			</div>
+		</div>
+		{% endfor %}
+  	  </div>
+
+	  
+	  <div class="d-md-none mt-4">
+		  {% if section.settings.show_share_buttons %}
+			{% include 'social-sharing', share_title: product.title, share_permalink: product.url, share_image: product %}
+		  {% endif %}
+	  </div>
+	 
+
+	  {% unless product == empty %}
+		<script type="application/json" data-product-json>
+		  {%- include 'bold-product', output: 'json' -%}
+		</script>
+	  {% endunless %}
+  </div>
+</div>
+</div>
+
+<div class="container pt-5 pb-3">
+	{% if section.settings.related_products_enable %}
+		{% assign grid_item_width = 'col-12 col-md-4 col-lg-3' %}
+		{% include 'related-products' %}
+	{% endif %}
+</div><!-- container -->
+
+{% if section.settings.countdown_visible == true %}
+<script>
+//Product Countdown
+//Countdown function
+(function() {
+  var target = new Date;
+    //Hours, Minutes, Seconds
+  target.setHours({{ section.settings.countdown_hours}}, {{ section.settings.countdown_minutes }}, 0); // default is 4pm
+
+  function pad(num) {
+    return ("0" + parseInt(num)).substr(-2);
+  }
+
+  function countdown() {
+    var outputId = 'product-countdown';
+    var now = new Date;
+      //if greater than target time...
+    if (now > target) {
+        //missed today's time, so add a day to the target time.
+        target.setDate(target.getDate() + 1);
+        //add expired class
+        document.getElementById('product-countdown-timer').classList.add('expired');
+    }
+    var remain = ((target - now) / 1000);
+    var hh = pad((remain / 60 / 60) % 60);
+    var mm = pad((remain / 60) % 60);
+    var ss = pad(remain % 60);
+    document.getElementById(outputId).innerHTML =
+      "<div><span class='hours'>" + hh + "</span><span class='smalltext'>Hours</span></div><div><span class='minutes'>" + mm + "</span><span class='smalltext'>Minutes</span></div><div><span class='seconds'>" + ss + "</span><span class='smalltext'>Seconds</span></div>";
+    setTimeout(countdown, 1000);
+  }
+	
+
+	//BG: Request by the client, to hide countdown on weekend (Saturday & Sunday)
+	function weekend() {
+		var today = new Date();
+		if (today.getDay() == 6 || today.getDay() == 0) {
+			document.getElementById('product-countdown-timer').classList.add('expired');
+		}
+	}
+
+  document.addEventListener('DOMContentLoaded', countdown);
+	document.addEventListener('DOMContentLoaded', weekend);
+})();
+
+//End Product Countdown
+</script>
+
+{% endif %}
+
+{% schema %}
+  {
+    "name": "Product pages",
+		"settings": [
+			{
+					"id": "countdown_visible",
+					"type": "checkbox",
+					"label": "Show product countdown",
+					"default": true
+			},
+			{
+					"id": "countdown_top",
+					"type": "text",
+					"label": "Countdown Heading",
+					"info": "This text sits above the countdown timer",
+					"default": "Order within the next..."
+			},
+			{
+					"id": "countdown_hours",
+					"type": "text",
+					"label": "Countdown to Hours",
+					"info": "Format is 24 hours, value should be between 0 - 24",
+					"default": "16"
+			},
+			{
+					"id": "countdown_minutes",
+					"type": "text",
+					"label": "Countdown to Minutes",
+					"info": "Value should be between 0 - 59",
+					"default": "0"
+			},
+			{
+					"id": "countdown_bottom",
+					"type": "text",
+					"label": "Countdown Footer",
+					"info": "This text sits below the countdown timer",
+					"default": "For next day delivery (Free if over £100)"
+			},
+			{
+				"type": "checkbox",
+				"id": "related_products_enable",
+				"label": "Show related products"
+			}
+		],
+    "blocks": [
+		{
+			"type": "featured_detail",
+			"name": "Featured Detail",
+			"settings": [
+				{
+				   "type":      "text",
+				   "id":        "featured_detail_title",
+				   "label":     "Title",
+				   "default":   "Featured Detail Title"
+				},
+				{
+				   "type":      "richtext",
+				   "id":        "featured_detail_content",
+				   "label":     "Content",
+				   "default":   "<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Voluptatem nam eius voluptates vel molestias, ipsa labore esse ab doloribus. Nam.</p>"
+				}
+			]
+		}
+	]
+  }
+{% endschema %}
+
+{% javascript %}
+	$(document).ready(function() {
+			$('.product-detail-images').slick({
+		 		slidesToShow: 1,
+  			slidesToScroll: 1,
+			 	prevArrow:"<button class='slick-prev slick-arrow' aria-label='Previous' type='button'><svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 320 512'><path d='M34.52 239.03L228.87 44.69c9.37-9.37 24.57-9.37 33.94 0l22.67 22.67c9.36 9.36 9.37 24.52.04 33.9L131.49 256l154.02 154.75c9.34 9.38 9.32 24.54-.04 33.9l-22.67 22.67c-9.37 9.37-24.57 9.37-33.94 0L34.52 272.97c-9.37-9.37-9.37-24.57 0-33.94z'/></svg></button>",
+		    nextArrow:"<button class='slick-next slick-arrow' aria-label='Next' type='button'><svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 320 512'><path d='M285.476 272.971L91.132 467.314c-9.373 9.373-24.569 9.373-33.941 0l-22.667-22.667c-9.357-9.357-9.375-24.522-.04-33.901L188.505 256 34.484 101.255c-9.335-9.379-9.317-24.544.04-33.901l22.667-22.667c9.373-9.373 24.569-9.373 33.941 0L285.475 239.03c9.373 9.372 9.373 24.568.001 33.941z'/></svg></button>",
+		    arrows: true,
+  			fade: true,
+  			asNavFor: '.product-detail-thumbnails'
+			});
+			
+			$('.product-detail-thumbnails').slick({
+		 		slidesToShow: 3,
+  			slidesToScroll: 1,
+			 	prevArrow:"<button class='slick-prev slick-arrow' aria-label='Previous' type='button'><svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 320 512'><path d='M34.52 239.03L228.87 44.69c9.37-9.37 24.57-9.37 33.94 0l22.67 22.67c9.36 9.36 9.37 24.52.04 33.9L131.49 256l154.02 154.75c9.34 9.38 9.32 24.54-.04 33.9l-22.67 22.67c-9.37 9.37-24.57 9.37-33.94 0L34.52 272.97c-9.37-9.37-9.37-24.57 0-33.94z'/></svg></button>",
+		    nextArrow:"<button class='slick-next slick-arrow' aria-label='Next' type='button'><svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 320 512'><path d='M285.476 272.971L91.132 467.314c-9.373 9.373-24.569 9.373-33.941 0l-22.667-22.667c-9.357-9.357-9.375-24.522-.04-33.901L188.505 256 34.484 101.255c-9.335-9.379-9.317-24.544.04-33.901l22.667-22.667c9.373-9.373 24.569-9.373 33.941 0L285.475 239.03c9.373 9.372 9.373 24.568.001 33.941z'/></svg></button>",
+		    asNavFor: '.product-detail-images',
+		    focusOnSelect: true
+			});
+	});
+{% endjavascript %}
